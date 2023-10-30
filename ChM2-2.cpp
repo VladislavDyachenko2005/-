@@ -16,7 +16,7 @@ void outputMatrix(double** matrix, double* y, const int n);
 void main() {
 	double x1 = 1, x2 = 0;
     int k=1, N=100;
-    double accur = 1e-9, dif = 0.001; 
+    double accur = 1e-9, dif = 0.01; 
 	const int n = 2;
 	double* vNev, *xVect, *delta, *solution, *vNev2;
 	vNev = new double[n];
@@ -103,6 +103,8 @@ void main() {
     for (int i = 0; i < n; i++) {
         delete[] a2[i];
     }
+    delete[] a;
+    delete[] a2;
 }
 
 double function1(double x1, double x2) {
@@ -128,16 +130,16 @@ double f2derivative22(double x1, double x2, double dif) {
 	return((function2(x1, x2 + dif) - function2(x1, x2)) / (dif));
 }
 //double f1derivative11(double x1, double x2) {
-//	return(cos(x1));
+//  return(cos(x1));
 //}
 //double f1derivative12(double x1, double x2) {
-//	return(-1);
+//  return(-1);
 //}
 //double f2derivative21(double x1, double x2) {
-//	return(-1);
+//  return(-1);
 //}
 //double f2derivative22(double x1, double x2) {
-//	return(-sin(x2));
+//  return(-sin(x2));
 //}
 void residualVector(double* vNev, double x1, double x2)
 {

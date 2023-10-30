@@ -3,17 +3,18 @@
 #include<math.h>
 using namespace std;
 
-double* gauss(double **matrix, double *y, const int n, int accur);
+double* gauss(double** matrix, double* y, const int n, int accur);
 void outputMatrix(double** matrix, double* y, const int n);
 void initialisationConst(double** matrix, double* y);
-void residVector(double** matrix, double* resVect, double* bVect, double* xVect);
+void residVector(double** matrix, double* resVect, double* bVect, double* xVect, int n);
+void residVectorMax(double* resVect, int n);
 
 int main() {
     setlocale(LC_ALL, "Russian");
-    const int n=3;
+    const int n = 3;
     int accur = 100000;
-    double  * bVect, *xVect, * xVect2, * residVect;
-    double ** matrix = new double* [n];
+    double* bVect, * xVect, * xVect2, * residVect;
+    double** matrix = new double* [n];
     for (int i = 0; i < n; i++) {
         matrix[i] = new double[n];
     }
@@ -26,14 +27,14 @@ int main() {
     }
     initialisationConst(matrix, bVect);
     outputMatrix(matrix, bVect, n);
-    xVect=gauss(matrix, bVect, n, accur);
+    xVect = gauss(matrix, bVect, n, accur);
     cout << "answer:";
     for (int i = 0; i < n; i++) {
-        cout << "x" << (i+1) <<" = " << xVect[i] << "; ";
+        cout << "x" << (i + 1) << " = " << xVect[i] << "; ";
     }
     // residual vector (вектор невязки)
     initialisationConst(matrix, bVect);
-    residVector(matrix, residVect, bVect, xVect);
+    residVector(matrix, residVect, bVect, xVect, n);
     //---------------------------------------------------------
     xVect2 = gauss(matrix, residVect, n, accur);
     cout << "answer2:";
@@ -57,6 +58,7 @@ int main() {
     for (int i = 0; i < n; i++) {
         delete[]matrix[i];
     }
+    delete[]matrix;
     delete[]bVect;
     delete[]xVect;
     delete[]xVect2;
@@ -73,74 +75,74 @@ void outputMatrix(double** matrix, double* y, const int n) {
         cout << "|" << y[j] << " " << endl;
     }
 }
-double* gauss(double **matrix, double *y, const int n, int accur) 
+double* gauss(double** matrix, double* y, const int n, int accur)
 {
-        double* xVect, max, roundH;
-        int k, index, round;
-        const double eps = 0.00001;  // точность
-        xVect = new double[n];
-        k = 0;
-        while (k < n)
+    double* xVect, max, roundH;
+    int k, index, round;
+    const double eps = 0.00001;  // точность
+    xVect = new double[n];
+    k = 0;
+    while (k < n)
+    {
+        // Поиск максимума
+        max = abs(matrix[k][k]);
+        index = k;
+        for (int i = k + 1; i < n; i++)
         {
-            // Поиск максимума
-            max = abs(matrix[k][k]);
-            index = k;
-            for (int i = k + 1; i < n; i++)
+            if (abs(matrix[i][k]) > max)
             {
-                if (abs(matrix[i][k]) > max)
-                {
-                    max = abs(matrix[i][k]);
-                    index = i;
-                }
+                max = abs(matrix[i][k]);
+                index = i;
             }
-            
-            if (max < eps)
-            {
-                // диаг элем = 0?
-                cout << "Решение получить невозможно из-за нулевого столбца ";
-                cout << index << " матрицы A" << endl;
-                return 0;
-            }
-            for (int j = 0; j < n; j++)
-            {
-                swap(matrix[k][j], matrix[index][j]);
-            }
-            swap(y[k], y[index]);
-            if (k>0)
+        }
+
+        if (max < eps)
+        {
+            // диаг элем = 0?
+            cout << "Решение получить невозможно из-за нулевого столбца ";
+            cout << index << " матрицы A" << endl;
+            return 0;
+        }
+        for (int j = 0; j < n; j++)
+        {
+            swap(matrix[k][j], matrix[index][j]);
+        }
+        swap(y[k], y[index]);
+        if (k > 0)
             outputMatrix(matrix, y, n);
-            // Нормализация уравнений
-            for (int i = k; i < n; i++)
-            {
-                double temp = matrix[i][k];
-                if (abs(temp) < eps) continue; // для нулевого коэффициента пропустить
-                for (int j = 0; j < n; j++) {
-                    matrix[i][j] = matrix[i][j] / temp;
-                    round = matrix[i][j] * accur;
-                    roundH = round;
-                    matrix[i][j] = roundH / accur;
-                }
-                y[i] = y[i] / temp;
-                round = y[i] * accur;
+        // Нормализация уравнений
+        for (int i = k; i < n; i++)
+        {
+            double temp = matrix[i][k];
+            if (abs(temp) < eps) continue; // для нулевого коэффициента пропустить
+            for (int j = 0; j < n; j++) {
+                matrix[i][j] = matrix[i][j] / temp;
+                round = matrix[i][j] * accur;
                 roundH = round;
-                y[i] = roundH / accur;
-                if (i == k)  continue; // уравнение не вычитать само из себя
-                for (int j = 0; j < n; j++)
-                    matrix[i][j] = matrix[i][j] - matrix[k][j];
-                y[i] = y[i] - y[k];
+                matrix[i][j] = roundH / accur;
             }
-            if (k==n-1)
+            y[i] = y[i] / temp;
+            round = y[i] * accur;
+            roundH = round;
+            y[i] = roundH / accur;
+            if (i == k)  continue; // уравнение не вычитать само из себя
+            for (int j = 0; j < n; j++)
+                matrix[i][j] = matrix[i][j] - matrix[k][j];
+            y[i] = y[i] - y[k];
+        }
+        if (k == n - 1)
             outputMatrix(matrix, y, n);
 
-            k++;
-        }
-        // обратная подстановка
-        for (k = n - 1; k >= 0; k--)
-        {
-            xVect[k] = y[k];
-            for (int i = 0; i < k; i++)
-                y[i] = y[i] - matrix[i][k] * xVect[k];
-        }
-        return xVect;
+        k++;
+    }
+    // обратная подстановка
+    for (k = n - 1; k >= 0; k--)
+    {
+        xVect[k] = y[k];
+        for (int i = 0; i < k; i++)
+            y[i] = y[i] - matrix[i][k] * xVect[k];
+    }
+    return xVect;
 }
 void initialisationConst(double** matrix, double* y) {
     matrix[0][0] = 2.75; matrix[0][1] = 1.78; matrix[0][2] = 1.11;
@@ -148,7 +150,18 @@ void initialisationConst(double** matrix, double* y) {
     matrix[2][0] = 1.15; matrix[2][1] = 2.70; matrix[2][2] = 3.58;
     y[0] = 15.71; y[1] = 43.78; y[2] = 37.11;
 }
-void residVector(double** matrix, double* resVect, double* bVect, double* xVect) {
+void residVectorMax(double* resVect, int n) {
+    double max = resVect[0];
+    for (int i = 1; i < n; ++i) {
+        if (max < resVect[i]) {
+            max = resVect[i];
+        }
+    }
+    cout << "maximal elem resid vect =" << max << endl;
+}
+void residVector(double** matrix, double* resVect, double* bVect, double* xVect, int n) {
+    double* a;
+    a = new double[n];
     for (int i = 0; i <= 2; i++) {
         for (int j = 0; j <= 2; j++) {
             resVect[i] += matrix[i][j] * xVect[j];
@@ -156,6 +169,9 @@ void residVector(double** matrix, double* resVect, double* bVect, double* xVect)
     }
     cout << "vector nevyazki" << endl;
     for (int i = 0; i <= 2; i++) {
-        cout << resVect[i] - bVect[i] << endl;
+        a[i] = resVect[i] - bVect[i];
+        cout << a[i] << endl;
     }
+    residVectorMax(a, n);
+    delete[]a;
 }
