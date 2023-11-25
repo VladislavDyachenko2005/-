@@ -90,7 +90,8 @@ double doubleIntegral(double nx, double ny, double lx, double ux, double ly, dou
 	double h, k;
     // в z храним таблицу значений
     // ax[] хранит интегральные значения y для всех рассмотренных х
-    double z[50][50], ax[50], answer;
+    const int N =50;
+    double z[N][N], ax[N], answer;
     h = (ux - lx) / (nx-1);// рассчет шага
 	k = (uy - ly) / (ny - 1);
     for (int i = 0; i < nx; ++i) { // рассчет значений функции для таблицы
