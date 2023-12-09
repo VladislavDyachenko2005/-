@@ -73,7 +73,7 @@ double integralT(double a, double b, double eps, int n) {
 		Integr2 = Integr1;
 		n = n * 2;
 		Integr1 = trapezoidIntegral(a, b, n);
-	} while (abs(Integr1 - Integr2) <= 3 * eps);
+	} while (abs(Integr1 - Integr2) >= 3 * eps);
 	return Integr1;
 }
 double integralS(double a, double b, double eps, int n) {
@@ -90,10 +90,9 @@ double doubleIntegral(double nx, double ny, double lx, double ux, double ly, dou
 	double h, k;
     // в z храним таблицу значений
     // ax[] хранит интегральные значения y для всех рассмотренных х
-    const int N =50;
-    double z[N][N], ax[N], answer;
+    double z[50][50], ax[50], answer;
     h = (ux - lx) / (nx-1);// рассчет шага
-	k = (uy - ly) / (ny - 1);
+	k = (uy - ly) / (ny-1);
     for (int i = 0; i < nx; ++i) { // рассчет значений функции для таблицы
         for (int j = 0; j < ny; ++j) {
             z[i][j] = function2(lx + i * h, ly + j * k);
