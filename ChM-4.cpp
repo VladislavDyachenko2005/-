@@ -11,7 +11,7 @@ void outputMatrix(double** matrix, double* y, const int n);
 void makeMatrix(double** matrix, double* vNev, double* t, double* u, int amount);
 
 void main() {
-    //	n=c*F^(-1/e) e, c - ? n = c/корень степени е из F //отмена // вариант 5:    u=a*exp(-Bt) a и B - ? --> ln(u)=ln(a)-Bt
+    //	n=c*F^(-1/e) e, c - ? n = c/ГЄГ®Г°ГҐГ­Гј Г±ГІГҐГЇГҐГ­ГЁ ГҐ ГЁГ§ F //Г®ГІГ¬ГҐГ­Г  // ГўГ Г°ГЁГ Г­ГІ 5:    u=a*exp(-Bt) a ГЁ B - ? --> ln(u)=ln(a)-Bt
     double* tString, * uString, * vNev, * xVect, *answerValue;
     int n = 7, nMatr = 2;
     answerValue = new double[nMatr];
@@ -22,22 +22,22 @@ void main() {
     uString = new double[n];
     uString[0] = 0.0148; uString[1] = 0.0124; uString[2] = 0.0102; uString[3] = 0.0085; uString[4] = 0.0071; uString[5] = 0.0059; uString[6] = 0.0051;
     double** matrix = new double* [nMatr];
-    for (int i = 0; i < nMatr; i++) { //создаем копии
+    for (int i = 0; i < nMatr; i++) { //Г±Г®Г§Г¤Г ГҐГ¬ ГЄГ®ГЇГЁГЁ
         matrix[i] = new double[nMatr];
     }
 
     makeMatrix(matrix, vNev, tString, uString, n);
     xVect = gauss(matrix, vNev, nMatr);
-    cout << xVect[0] << " " << xVect[1]<< endl; //возвращает ln(a) и -B
-    double exp = 2.7182818284, sumS=0;
-    answerValue[0] = pow(exp, xVect[0]);
+    cout << xVect[0] << " " << xVect[1]<< endl; //ГўГ®Г§ГўГ°Г Г№Г ГҐГІ ln(a) ГЁ -B
+    double sumS=0;
+    answerValue[0] = exp(xVect[0]);
     answerValue[1] = (-1)*xVect[1];
     cout << "a = " << answerValue[0] << "; b = " << answerValue[1]<<endl;
     
     for (int i = 0; i < n; ++i) {
         sumS += pow((log(uString[i]) - xVect[0] - xVect[1] * tString[i]), 2);
     }
-    double S2 = (1 / (7 - 2)) * sumS;
+    double S2 = (1 / (n - 2)) * sumS;
     cout << pow(S2, 1 / 2);
 }
 double sumT1(double* t, int amount) {
@@ -72,12 +72,12 @@ double* gauss(double** matrix, double* y, const int n)
 {
     double* xVect, max, roundH;
     int k, index;
-    const double eps = 0.00001;  // точность
+    const double eps = 0.00001;  // ГІГ®Г·Г­Г®Г±ГІГј
     xVect = new double[n];
     k = 0;
     while (k < n)
     {
-        // Поиск максимума
+        // ГЏГ®ГЁГ±ГЄ Г¬Г ГЄГ±ГЁГ¬ГіГ¬Г 
         max = abs(matrix[k][k]);
         index = k;
         for (int i = k + 1; i < n; i++)
@@ -95,16 +95,16 @@ double* gauss(double** matrix, double* y, const int n)
         swap(y[k], y[index]);
         if (k > 0)
             outputMatrix(matrix, y, n);
-        // Нормализация уравнений
+        // ГЌГ®Г°Г¬Г Г«ГЁГ§Г Г¶ГЁГї ГіГ°Г ГўГ­ГҐГ­ГЁГ©
         for (int i = k; i < n; i++)
         {
             double temp = matrix[i][k];
-            if (abs(temp) < eps) continue; // для нулевого коэффициента пропустить
+            if (abs(temp) < eps) continue; // Г¤Г«Гї Г­ГіГ«ГҐГўГ®ГЈГ® ГЄГ®ГЅГґГґГЁГ¶ГЁГҐГ­ГІГ  ГЇГ°Г®ГЇГіГ±ГІГЁГІГј
             for (int j = 0; j < n; j++) {
                 matrix[i][j] = matrix[i][j] / temp;
             }
             y[i] = y[i] / temp;
-            if (i == k)  continue; // уравнение не вычитать само из себя
+            if (i == k)  continue; // ГіГ°Г ГўГ­ГҐГ­ГЁГҐ Г­ГҐ ГўГ»Г·ГЁГІГ ГІГј Г±Г Г¬Г® ГЁГ§ Г±ГҐГЎГї
             for (int j = 0; j < n; j++)
                 matrix[i][j] = matrix[i][j] - matrix[k][j];
             y[i] = y[i] - y[k];
@@ -114,7 +114,7 @@ double* gauss(double** matrix, double* y, const int n)
         }
         k++;
     }
-    // обратная подстановка
+    // Г®ГЎГ°Г ГІГ­Г Гї ГЇГ®Г¤Г±ГІГ Г­Г®ГўГЄГ 
     for (k = n - 1; k >= 0; k--)
     {
         xVect[k] = y[k];
